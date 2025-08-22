@@ -2,7 +2,7 @@
 
 :root {
     --primary-color:rgb(52, 54, 54);
-    --secondary-color: #490404d7 ;
+    --secondary-color: #011009d7 ;
     --accent-color: #ffffff;
     --text-color: #020a09;
     --bg-color: rgba(42, 214, 214, 0.123);
@@ -41,7 +41,7 @@ header {
 }
 
 header.scrolled {
-    background-color: rgba(62, 111, 134, 0.9);
+    background-color: rgba(86, 154, 185, 0.9);
     align-items: center;
 }
 
@@ -67,7 +67,7 @@ nav {
 }
 
 .nav-links li {
-    margin-left: 2rem;
+    margin-left: 75px;
 }
 
 .nav-links a {
@@ -75,6 +75,7 @@ nav {
     text-decoration: none;
     font-weight: 600;
     transition: color 0.3s ease;
+    text-align: center;
 }
 
 .nav-links a:hover {
