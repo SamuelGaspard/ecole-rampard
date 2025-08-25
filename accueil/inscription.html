@@ -1,11 +1,845 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>inscription</title>
+    <title>Inscription - les RAMPARDS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #3498db;
+        }
+
+        main {
+            margin-top: 80px;
+            padding: 40px 0;
+        }
+
+        .inscription-header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .inscription-header h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .inscription-header p {
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+
+        .inscription-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .tab.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .tab:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group label.required::after {
+            content: " *";
+            color: #e74c3c;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .form-group input.error,
+        .form-group select.error {
+            border-color: #e74c3c;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 12px 15px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .file-upload:hover .file-upload-label {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+
+        .progress-bar {
+            background: #f1f1f1;
+            border-radius: 10px;
+            padding: 3px;
+            margin: 20px 0;
+        }
+
+        .progress {
+            background: #3498db;
+            height: 20px;
+            border-radius: 7px;
+            width: 0%;
+            transition: width 0.3s;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .pricing-card {
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .pricing-card.selected {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+
+        .pricing-card.popular::before {
+            content: "Populaire";
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e74c3c;
+            color: white;
+            padding: 5px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .pricing-card h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .pricing-card .price {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .pricing-card .duration {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .pricing-card ul {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .pricing-card ul li {
+            padding: 5px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .pricing-card ul li::before {
+            content: "✓";
+            color: #27ae60;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .summary-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .summary-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .summary-total {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #2c3e50;
+            border-top: 2px solid #3498db;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            nav ul li {
+                margin: 5px 0;
+            }
+            
+            .inscription-header h1 {
+                font-size: 2em;
+            }
+            
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    
+    <header>
+        <nav class="container">
+            <ul>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="about.html">formation</a></li>
+                <li><a href="services.html">apropos</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="inscription.html">responsables</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="inscription-header">
+            <h1>Inscription en ligne</h1>
+            <p>Rejoignez notre communauté éducative et commencez votre parcours d'apprentissage</p>
+        </section>
+
+        <div class="inscription-container">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('etudiant')">Étudiant</button>
+                <button class="tab" onclick="showTab('formation')">Formation Continue</button>
+                <button class="tab" onclick="showTab('entreprise')">Entreprise</button>
+            </div>
+
+            <div id="success-message" class="success-message">
+                <strong>Inscription réussie!</strong> Nous vous contacterons sous 48h pour confirmer votre inscription.
+            </div>
+
+            <!-- Onglet Étudiant -->
+            <div id="etudiant" class="tab-content active">
+                <form id="form-etudiant">
+                    <div class="form-section">
+                        <h3>Informations personnelles</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nom" class="required">Nom</label>
+                                <input type="text" id="nom" name="nom" required>
+                                <div class="error-message">Le nom est requis</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="prenom" class="required">Prénom</label>
+                                <input type="text" id="prenom" name="prenom" required>
+                                <div class="error-message">Le prénom est requis</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email" class="required">Email</label>
+                                <input type="email" id="email" name="email" required>
+                                <div class="error-message">Email valide requis</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="telephone" class="required">Téléphone</label>
+                                <input type="tel" id="telephone" name="telephone" required>
+                                <div class="error-message">Numéro de téléphone requis</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="date-naissance" class="required">Date de naissance</label>
+                                <input type="date" id="date-naissance" name="date-naissance" required>
+                                <div class="error-message">Date de naissance requise</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lieu-naissance">Lieu de naissance</label>
+                                <input type="text" id="lieu-naissance" name="lieu-naissance">
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="adresse" class="required">Adresse complète</label>
+                            <input type="text" id="adresse" name="adresse" required>
+                            <div class="error-message">Adresse requise</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="ville" class="required">Ville</label>
+                                <input type="text" id="ville" name="ville" required>
+                                <div class="error-message">Ville requise</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="code-postal" class="required">Code postal</label>
+                                <input type="text" id="code-postal" name="code-postal" required>
+                                <div class="error-message">Code postal requis</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Formation souhaitée</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="formation" class="required">Programme d'études</label>
+                                <select id="formation" name="formation" required>
+                                    <option value="">Choisissez une formation</option>
+                                    <option value="informatique">Informatique et Numérique</option>
+                                    <option value="commerce">Commerce et Management</option>
+                                    <option value="ingenierie">Ingénierie</option>
+                                    <option value="design">Design et Arts Appliqués</option>
+                                    <option value="sante">Santé et Social</option>
+                                </select>
+                                <div class="error-message">Veuillez choisir une formation</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="niveau" class="required">Niveau d'études</label>
+                                <select id="niveau" name="niveau" required>
+                                    <option value="">Choisissez votre niveau</option>
+                                    <option value="bac">Baccalauréat</option>
+                                    <option value="bac+2">Bac+2</option>
+                                    <option value="bac+3">Bac+3</option>
+                                    <option value="bac+5">Bac+5 ou plus</option>
+                                </select>
+                                <div class="error-message">Niveau d'études requis</div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="annee-etude">Année d'études souhaitée</label>
+                                <select id="annee-etude" name="annee-etude">
+                                    <option value="2024">2024-2025</option>
+                                    <option value="2025">2025-2026</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="modalite">Modalité de formation</label>
+                                <select id="modalite" name="modalite">
+                                    <option value="presentiel">Présentiel</option>
+                                    <option value="distance">À distance</option>
+                                    <option value="hybride">Hybride</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Documents</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cv">CV (PDF, max 5MB)</label>
+                                <div class="file-upload">
+                                    <input type="file" id="cv" name="cv" accept=".pdf">
+                                    <label for="cv" class="file-upload-label">
+                                        📄 Cliquez pour télécharger votre CV
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lettre-motivation">Lettre de motivation (PDF, max 5MB)</label>
+                                <div class="file-upload">
+                                    <input type="file" id="lettre-motivation" name="lettre-motivation" accept=".pdf">
+                                    <label for="lettre-motivation" class="file-upload-label">
+                                        📝 Cliquez pour télécharger votre lettre
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="motivation">Pourquoi souhaitez-vous rejoindre notre école ?</label>
+                            <textarea id="motivation" name="motivation" rows="4" placeholder="Expliquez vos motivations..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="conditions" name="conditions" required>
+                        <label for="conditions">J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a> *</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="newsletter" name="newsletter">
+                        <label for="newsletter">Je souhaite recevoir la newsletter et les informations sur les événements</label>
+                    </div>
+
+                    <button type="submit" class="btn">Soumettre ma candidature</button>
+                    <button type="reset" class="btn btn-secondary">Effacer</button>
+                </form>
+            </div>
+
+            <!-- Onglet Formation Continue -->
+            <div id="formation" class="tab-content">
+                <div class="pricing-cards">
+                    <div class="pricing-card" onclick="selectPlan('basic')">
+                        <h4>Formation Courte</h4>
+                        <div class="price">299€</div>
+                        <div class="duration">1-3 mois</div>
+                        <ul>
+                            <li>Cours en ligne</li>
+                            <li>Support par email</li>
+                            <li>Certificat de réussite</li>
+                            <li>Accès 6 mois</li>
+                        </ul>
+                    </div>
+
+                    <div class="pricing-card popular" onclick="selectPlan('premium')">
+                        <h4>Formation Diplômante</h4>
+                        <div class="price">1299€</div>
+                        <div class="duration">6-12 mois</div>
+                        <ul>
+                            <li>Cours en ligne + présentiel</li>
+                            <li>Accompagnement personnalisé</li>
+                            <li>Diplôme reconnu</li>
+                            <li>Stage en entreprise</li>
+                            <li>Placement professionnel</li>
+                        </ul>
+                    </div>
+
+                    <div class="pricing-card" onclick="selectPlan('enterprise')">
+                        <h4>Formation Sur Mesure</h4>
+                        <div class="price">Sur devis</div>
+                        <div class="duration">Flexible</div>
+                        <ul>
+                            <li>Programme personnalisé</li>
+                            <li>Formation en entreprise</li>
+                            <li>Consultant dédié</li>
+                            <li>Suivi post-formation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <form id="form-formation-continue">
+                    <div class="form-section">
+                        <h3>Informations professionnelles</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="entreprise">Entreprise/Organisation</label>
+                                <input type="text" id="entreprise" name="entreprise">
+                            </div>
+                            <div class="form-group">
+                                <label for="poste">Poste actuel</label>
+                                <input type="text" id="poste" name="poste">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="experience">Années d'expérience</label>
+                                <select id="experience" name="experience">
+                                    <option value="0-2">0-2 ans</option>
+                                    <option value="3-5">3-5 ans</option>
+                                    <option value="6-10">6-10 ans</option>
+                                    <option value="10+">Plus de 10 ans</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="secteur">Secteur d'activité</label>
+                                <select id="secteur" name="secteur">
+                                    <option value="informatique">Informatique</option>
+                                    <option value="finance">Finance</option>
+                                    <option value="sante">Santé</option>
+                                    <option value="education">Éducation</option>
+                                    <option value="industrie">Industrie</option>
+                                    <option value="autre">Autre</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="objectifs">Objectifs de formation</label>
+                            <textarea id="objectifs" name="objectifs" rows="3" placeholder="Décrivez vos objectifs professionnels..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="summary-section">
+                        <h3>Récapitulatif de votre inscription</h3>
+                        <div id="formation-summary">
+                            <div class="summary-item">
+                                <span>Formation sélectionnée:</span>
+                                <span id="selected-plan">Aucune sélection</span>
+                            </div>
+                            <div class="summary-item">
+                                <span>Prix:</span>
+                                <span id="selected-price">0€</span>
+                            </div>
+                            <div class="summary-item summary-total">
+                                <span>Total:</span>
+                                <span id="total-price">0€</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn">S'inscrire maintenant</button>
+                </form>
+            </div>
+
+            <!-- Onglet Entreprise -->
+            <div id="entreprise" class="tab-content">
+                <form id="form-entreprise">
+                    <div class="form-section">
+                        <h3>Informations de l'entreprise</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nom-entreprise" class="required">Nom de l'entreprise</label>
+                                <input type="text" id="nom-entreprise" name="nom-entreprise" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="siret">Numéro SIRET</label>
+                                <input type="text" id="siret" name="siret">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="secteur-entreprise">Secteur d'activité</label>
+                                <input type="text" id="secteur-entreprise" name="secteur-entreprise">
+                            </div>
+                            <div class="form-group">
+                                <label for="taille-entreprise">Taille de l'entreprise</label>
+                                <select id="taille-entreprise" name="taille-entreprise">
+                                    <option value="1-10">1-10 employés</option>
+                                    <option value="11-50">11-50 employés</option>
+                                    <option value="51-200">51-200 employés</option>
+                                    <option value="200+">Plus de 200 employés</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="adresse-entreprise">Adresse de l'entreprise</label>
+                            <textarea id="adresse-entreprise" name="adresse-entreprise" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Contact principal</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contact-nom" class="required">Nom du contact</label>
+                                <input type="text" id="contact-nom" name="contact-nom" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact-fonction">Fonction</label>
+                                <input type="text" id="contact-fonction" name="contact-fonction">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="contact-email" class="required">Email</label>
+                                <input type="email" id="contact-email" name="contact-email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact-tel" class="required">Téléphone</label>
+                                <input type="tel" id="contact-tel" name="contact-tel" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Besoins en formation</h3>
+                        <div class="form-group">
+                            <label for="nombre-employes">Nombre d'employés à former</label>
+                            <input type="number" id="nombre-employes" name="nombre-employes" min="1">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="domaines-formation">Domaines de formation souhaités</label>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="digital" name="domaines[]" value="digital">
+                                    <label for="digital">Transformation digitale</label>
+                                </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="management" name="domaines[]" value="management">
+                                    <label for="management">Management</label>
+                                </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="vente" name="domaines[]" value="vente">
+                                    <label for="vente">Techniques de vente</label>
+                                </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="communication" name="domaines[]" value="communication">
+                                    <label for="communication">Communication</label>
+                                </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="qualite" name="domaines[]" value="qualite">
+                                    <label for="qualite">Qualité</label>
+                                </div>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="securite" name="domaines[]" value="securite">
+                                    <label for="securite">Sécurité</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="budget">Budget approximatif</label>
+                            <select id="budget" name="budget">
+                                <option value="5000">Moins de 5 000€</option>
+                                <option value="10000">5 000€ - 10 000€</option>
+                                <option value="25000">10 000€ - 25 000€</option>
+                                <option value="50000">25 000€ - 50 000€</option>
+                                <option value="50000+">Plus de 50 000€</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="details-besoins">Détails des besoins</label>
+                            <textarea id="details-besoins" name="details-besoins" rows="4" placeholder="Décrivez vos besoins spécifiques en formation..."></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn">Demander un devis</button>
+                </form>
+            </div>
+        </div>
 </body>
 </html>
