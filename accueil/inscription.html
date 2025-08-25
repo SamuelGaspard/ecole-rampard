@@ -842,5 +842,165 @@
             </div>
         </div>
     </main>
+
+    <script>
+        // Gestion des onglets
+        function showTab(tabName) {
+            // Masquer tous les contenus
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Désactiver tous les onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Afficher le contenu sélectionné
+            document.getElementById(tabName).classList.add('active');
+            
+            // Activer l'onglet sélectionné
+            event.target.classList.add('active');
+        }
+
+        // Sélection des plans de formation
+        function selectPlan(planType) {
+            // Désélectionner tous les plans
+            document.querySelectorAll('.pricing-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Sélectionner le plan cliqué
+            event.target.closest('.pricing-card').classList.add('selected');
+            
+            // Mettre à jour le récapitulatif
+            const plans = {
+                'basic': { name: 'Formation Courte', price: '299€' },
+                'premium': { name: 'Formation Diplômante', price: '1299€' },
+                'enterprise': { name: 'Formation Sur Mesure', price: 'Sur devis' }
+            };
+            
+            document.getElementById('selected-plan').textContent = plans[planType].name;
+            document.getElementById('selected-price').textContent = plans[planType].price;
+            document.getElementById('total-price').textContent = plans[planType].price;
+        }
+
+        // Validation des formulaires
+        function validateForm(formId) {
+            const form = document.getElementById(formId);
+            const inputs = form.querySelectorAll('input[required], select[required]');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                const errorMessage = input.parentNode.querySelector('.error-message');
+                
+                if (!input.value.trim()) {
+                    input.classList.add('error');
+                    if (errorMessage) errorMessage.style.display = 'block';
+                    isValid = false;
+                } else {
+                    input.classList.remove('error');
+                    if (errorMessage) errorMessage.style.display = 'none';
+                }
+            });
+
+            return isValid;
+        }
+
+        // Gestionnaires d'événements pour les formulaires
+        document.getElementById('form-etudiant').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (validateForm('form-etudiant')) {
+                document.getElementById('success-message').style.display = 'block';
+                this.reset();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        document.getElementById('form-formation-continue').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const selectedPlan = document.querySelector('.pricing-card.selected');
+            if (!selectedPlan) {
+                alert('Veuillez sélectionner un plan de formation.');
+                return;
+            }
+            
+            document.getElementById('success-message').style.display = 'block';
+            this.reset();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.getElementById('form-entreprise').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (validateForm('form-entreprise')) {
+                document.getElementById('success-message').style.display = 'block';
+                this.reset();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        // Gestion des fichiers uploadés
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const label = this.nextElementSibling;
+                if (this.files.length > 0) {
+                    label.textContent = `✓ ${this.files[0].name}`;
+                    label.style.color = '#27ae60';
+                    label.style.borderColor = '#27ae60';
+                }
+            });
+        });
+
+        // Animation au scroll
+        window.addEventListener('scroll', function() {
+            const elements = document.querySelectorAll('.inscription-container');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        // Style initial pour l'animation
+        document.querySelectorAll('.inscription-container').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(30px)';
+            element.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        });
+
+        // Masquer le message de succès après un certain temps
+        function hideSuccessMessage() {
+            setTimeout(() => {
+                const successMessage = document.getElementById('success-message');
+                if (successMessage.style.display === 'block') {
+                    successMessage.style.display = 'none';
+                }
+            }, 5000);
+        }
+
+        // Validation en temps réel
+        document.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.hasAttribute('required')) {
+                    const errorMessage = this.parentNode.querySelector('.error-message');
+                    
+                    if (!this.value.trim()) {
+                        this.classList.add('error');
+                        if (errorMessage) errorMessage.style.display = 'block';
+                    } else {
+                        this.classList.remove('error');
+                        if (errorMessage) errorMessage.style.display = 'none';
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
