@@ -1,11 +1,435 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #3498db;
+        }
+
+        main {
+            margin-top: 80px;
+            padding: 40px 0;
+        }
+
+        .contact-header {
+            text-align: center;
+            margin-bottom: 50px;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .contact-header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .contact-header p {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .contact-form {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .contact-form h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #3498db;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .contact-info {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .contact-info h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .info-item i {
+            font-size: 20px;
+            color: #3498db;
+            margin-right: 15px;
+            width: 30px;
+        }
+
+        .info-item h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .info-item p {
+            color: #666;
+            margin: 0;
+        }
+
+        .map-section {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .map-section h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 1.8em;
+        }
+
+        .map-placeholder {
+            background: #ecf0f1;
+            height: 300px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 18px;
+            border: 2px dashed #bdc3c7;
+        }
+
+        .social-links {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .social-links h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            text-decoration: none;
+            width: 50px;
+            height: 50px;
+            line-height: 30px;
+            transition: transform 0.3s;
+        }
+
+        .social-links a:hover {
+            transform: translateY(-3px);
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .contact-content {
+                grid-template-columns: 1fr;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            nav ul li {
+                margin: 5px 0;
+            }
+            
+            .contact-header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
 <body>
-    
+    <header>
+        <nav class="container">
+            <ul>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="about.html">À Propos</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="contact-header">
+            <h1>Contactez-nous</h1>
+            <p>Nous sommes là pour répondre à toutes vos questions. N'hésitez pas à nous contacter !</p>
+        </section>
+
+        <div class="contact-content">
+            <section class="contact-form">
+                <h2>Envoyez-nous un message</h2>
+                <form action="#" method="POST">
+                    <div class="form-group">
+                        <label for="nom">Nom complet *</label>
+                        <input type="text" id="nom" name="nom" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="telephone">Téléphone</label>
+                        <input type="tel" id="telephone" name="telephone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sujet">Sujet *</label>
+                        <select id="sujet" name="sujet" required>
+                            <option value="">Choisissez un sujet</option>
+                            <option value="information">Demande d'information</option>
+                            <option value="devis">Demande de devis</option>
+                            <option value="support">Support technique</option>
+                            <option value="partenariat">Partenariat</option>
+                            <option value="autre">Autre</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message *</label>
+                        <textarea id="message" name="message" placeholder="Décrivez votre demande en détail..." required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn">Envoyer le message</button>
+                </form>
+            </section>
+
+            <section class="contact-info">
+                <h2>Nos coordonnées</h2>
+                
+                <div class="info-item">
+                    <i>📍</i>
+                    <div>
+                        <h3>Adresse</h3>
+                        <p>123 Rue de l'École<br>75001 Paris, France</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i>📞</i>
+                    <div>
+                        <h3>Téléphone</h3>
+                        <p>+33 1 23 45 67 89</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i>✉️</i>
+                    <div>
+                        <h3>Email</h3>
+                        <p>contact@ecole-essai.fr</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i>🕒</i>
+                    <div>
+                        <h3>Horaires d'ouverture</h3>
+                        <p>Lundi - Vendredi: 8h00 - 18h00<br>
+                           Samedi: 9h00 - 12h00<br>
+                           Dimanche: Fermé</p>
+                    </div>
+                </div>
+
+                <div class="social-links">
+                    <h3>Suivez-nous</h3>
+                    <a href="#" title="Facebook">f</a>
+                    <a href="#" title="Twitter">t</a>
+                    <a href="#" title="LinkedIn">in</a>
+                    <a href="#" title="Instagram">ig</a>
+                </div>
+            </section>
+        </div>
+
+        <section class="map-section">
+            <h2>Notre localisation</h2>
+            <div class="map-placeholder">
+                <p>Carte Google Maps - 123 Rue de l'École, 75001 Paris</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 École Essai. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Validation du formulaire
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nom = document.getElementById('nom').value;
+            const email = document.getElementById('email').value;
+            const sujet = document.getElementById('sujet').value;
+            const message = document.getElementById('message').value;
+            
+            if (!nom || !email || !sujet || !message) {
+                alert('Veuillez remplir tous les champs obligatoires.');
+                return;
+            }
+            
+            // Simulation d'envoi
+            alert('Merci pour votre message ! Nous vous répondrons dans les plus brefs délais.');
+            this.reset();
+        });
+
+        // Animation au scroll
+        window.addEventListener('scroll', function() {
+            const elements = document.querySelectorAll('.contact-form, .contact-info, .map-section');
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        });
+
+        // Style initial pour l'animation
+        document.querySelectorAll('.contact-form, .contact-info, .map-section').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(30px)';
+            element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        });
+    </script>
 </body>
 </html>
