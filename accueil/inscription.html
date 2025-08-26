@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription - les RAMPARDS</title>
+    <title>Inscription</title>
     <style>
         * {
             margin: 0;
@@ -460,7 +460,7 @@
                 <strong>Inscription réussie!</strong> Nous vous contacterons sous 48h pour confirmer votre inscription.
             </div>
 
-            <!-- Onglet Étudiant -->
+            <!-- Onglet eleve -->
             <div id="etudiant" class="tab-content active">
                 <form id="form-etudiant">
                     <div class="form-section">
@@ -482,7 +482,7 @@
                             <div class="form-group">
                                 <label for="email" class="required">Email</label>
                                 <input type="email" id="email" name="email" required>
-                                <div class="error-message">Email valide requis</div>
+                                <div class="error-message">Email valide requis du responsables</div>
                             </div>
                             <div class="form-group">
                                 <label for="telephone" class="required">Téléphone</label>
@@ -515,11 +515,6 @@
                                 <input type="text" id="ville" name="ville" required>
                                 <div class="error-message">Ville requise</div>
                             </div>
-                            <div class="form-group">
-                                <label for="code-postal" class="required">Code postal</label>
-                                <input type="text" id="code-postal" name="code-postal" required>
-                                <div class="error-message">Code postal requis</div>
-                            </div>
                         </div>
                     </div>
 
@@ -530,11 +525,11 @@
                                 <label for="formation" class="required">Programme d'études</label>
                                 <select id="formation" name="formation" required>
                                     <option value="">Choisissez une formation</option>
-                                    <option value="informatique">Informatique et Numérique</option>
-                                    <option value="commerce">Commerce et Management</option>
-                                    <option value="ingenierie">Ingénierie</option>
-                                    <option value="design">Design et Arts Appliqués</option>
-                                    <option value="sante">Santé et Social</option>
+                                    <option value="informatique">encadrement des mon enfants</option>
+                                    <option value="commerce">primaire</option>
+                                    <option value="ingenierie">secondaire partie I</option>
+                                    <option value="design">section science</option>
+                                    <option value="sante">section Techniques</option>
                                 </select>
                                 <div class="error-message">Veuillez choisir une formation</div>
                             </div>
@@ -542,10 +537,10 @@
                                 <label for="niveau" class="required">Niveau d'études</label>
                                 <select id="niveau" name="niveau" required>
                                     <option value="">Choisissez votre niveau</option>
-                                    <option value="bac">Baccalauréat</option>
-                                    <option value="bac+2">Bac+2</option>
-                                    <option value="bac+3">Bac+3</option>
-                                    <option value="bac+5">Bac+5 ou plus</option>
+                                    <option value="bac">Creche</option>
+                                    <option value="bac+2">maternelle</option>
+                                    <option value="bac+3">primaire</option>
+                                    <option value="bac+5">secondaire</option>
                                 </select>
                                 <div class="error-message">Niveau d'études requis</div>
                             </div>
@@ -555,8 +550,8 @@
                             <div class="form-group">
                                 <label for="annee-etude">Année d'études souhaitée</label>
                                 <select id="annee-etude" name="annee-etude">
-                                    <option value="2024">2024-2025</option>
-                                    <option value="2025">2025-2026</option>
+                                    <option value="2024">Exemple:2024-2025</option>
+                                    <option value="2025">Exemple:2025-2026</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -571,28 +566,6 @@
                     </div>
 
                     <div class="form-section">
-                        <h3>Documents</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="cv">CV (PDF, max 5MB)</label>
-                                <div class="file-upload">
-                                    <input type="file" id="cv" name="cv" accept=".pdf">
-                                    <label for="cv" class="file-upload-label">
-                                        📄 Cliquez pour télécharger votre CV
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="lettre-motivation">Lettre de motivation (PDF, max 5MB)</label>
-                                <div class="file-upload">
-                                    <input type="file" id="lettre-motivation" name="lettre-motivation" accept=".pdf">
-                                    <label for="lettre-motivation" class="file-upload-label">
-                                        📝 Cliquez pour télécharger votre lettre
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="form-group">
                             <label for="motivation">Pourquoi souhaitez-vous rejoindre notre école ?</label>
                             <textarea id="motivation" name="motivation" rows="4" placeholder="Expliquez vos motivations..."></textarea>
