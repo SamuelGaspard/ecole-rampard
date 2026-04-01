@@ -1,0 +1,21 @@
+{
+  "name": "ecole-rampard",
+  "version": "1.0.0",
+  "description": "rampard school",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SamuelGaspard/ecole-rampard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SamuelGaspard/ecole-rampard/issues"
+  },
+  "homepage": "https://github.com/SamuelGaspard/ecole-rampard#readme"
+}
