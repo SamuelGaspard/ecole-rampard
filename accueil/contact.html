@@ -292,7 +292,7 @@
         <div class="contact-content">
             <section class="contact-form">
                 <h2>Envoyez-nous un message</h2>
-                <form action="#" method="POST">
+                <form id="form-contact" action="#" method="POST">
                     <div class="form-group">
                         <label for="nom">Nom complet *</label>
                         <input type="text" id="nom" name="nom" required>
@@ -399,12 +399,15 @@
     </footer>
 
     <script>
+        const API_BASE_URL = 'http://localhost:3000';
+
         // Validation du formulaire
-        document.querySelector('form').addEventListener('submit', function(e) {
+        document.getElementById('form-contact').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const nom = document.getElementById('nom').value;
             const email = document.getElementById('email').value;
+            const telephone = document.getElementById('telephone').value;
             const sujet = document.getElementById('sujet').value;
             const message = document.getElementById('message').value;
             
@@ -412,10 +415,31 @@
                 alert('Veuillez remplir tous les champs obligatoires.');
                 return;
             }
-            
-            // Simulation d'envoi
-            alert('Merci pour votre message ! Nous vous répondrons dans les plus brefs délais.');
-            this.reset();
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/contact`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nom,
+                        email,
+                        telephone,
+                        sujet,
+                        message
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Echec de l\'envoi');
+                }
+
+                alert('Merci pour votre message ! Nous vous répondrons dans les plus brefs délais.');
+                this.reset();
+            } catch (error) {
+                alert('Impossible d\'envoyer le message pour le moment. Réessayez plus tard.');
+            }
         });
 
         // Animation au scroll

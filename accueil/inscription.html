@@ -815,6 +815,8 @@
     </main>
 
     <script>
+        const API_BASE_URL = 'http://localhost:3000';
+
         // Gestion des onglets
         function showTab(tabName) {
             // Masquer tous les contenus
@@ -879,13 +881,46 @@
         }
 
         // Gestionnaires d'événements pour les formulaires
-        document.getElementById('form-etudiant').addEventListener('submit', function(e) {
+        document.getElementById('form-etudiant').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             if (validateForm('form-etudiant')) {
-                document.getElementById('success-message').style.display = 'block';
-                this.reset();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                const payload = {
+                    nom: document.getElementById('nom').value,
+                    prenom: document.getElementById('prenom').value,
+                    email: document.getElementById('email').value,
+                    telephone: document.getElementById('telephone').value,
+                    dateNaissance: document.getElementById('date-naissance').value,
+                    lieuNaissance: document.getElementById('lieu-naissance').value,
+                    adresse: document.getElementById('adresse').value,
+                    ville: document.getElementById('ville').value,
+                    formation: document.getElementById('formation').value,
+                    niveau: document.getElementById('niveau').value,
+                    anneeEtude: document.getElementById('annee-etude').value,
+                    modalite: document.getElementById('modalite').value,
+                    motivation: document.getElementById('motivation').value,
+                    newsletter: document.getElementById('newsletter').checked
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/inscriptions`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Echec de l\'inscription');
+                    }
+
+                    document.getElementById('success-message').style.display = 'block';
+                    this.reset();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (error) {
+                    alert('Impossible d\'enregistrer l\'inscription pour le moment. Réessayez plus tard.');
+                }
             }
         });
 
