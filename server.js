@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
@@ -8,6 +9,7 @@ const port = Number(process.env.PORT || 3000);
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "accueil")));
 
 const pool = new Pool({
   host: process.env.DB_HOST || "localhost",
@@ -108,6 +110,29 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
+app.get("/api/inscriptions", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM inscriptions ORDER BY created_at DESC"
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+app.get("/api/messages", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM messages_contact ORDER BY created_at DESC"
+    );
+    return res.json(result.rows);
+  } catch (error) {
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
 app.listen(port, () => {
   console.log(`API en ligne sur http://localhost:${port}`);
+  console.log(`Admin panel: http://localhost:${port}/admin.html`);
 });
