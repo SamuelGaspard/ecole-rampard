@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Responsables et Enseignants - École</title>
     <style>
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 70px;
+        }
+
         /* Navigation Styles */
         nav {
-            background-color: #34495e;
+            background-color: #12355b;
             padding: 1rem 0;
         }
         
@@ -40,11 +45,11 @@
         }
         
         nav a:hover {
-            background-color: #3498db;
+            background-color: #2a9d8f;
         }
         
         nav a.active {
-            background-color: #3498db;
+            background-color: #2a9d8f;
         }
         * {
             margin: 0;
@@ -55,22 +60,22 @@
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background-color: #f4f4f4;
+            color: #263238;
+            background-color: #f4f7f6;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 16px 20px;
         }
         
         header {
-            background-color: #2c3e50;
+            background-color: #12355b;
             color: white;
             text-align: center;
             padding: 2rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.25rem;
         }
         
         h1 {
@@ -79,20 +84,20 @@
         }
         
         h2 {
-            color: #2c3e50;
-            border-bottom: 3px solid #3498db;
+            color: #12355b;
+            border-bottom: 3px solid #2a9d8f;
             padding-bottom: 10px;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
         }
         
         .section {
-            margin-bottom: 3rem;
+            margin-bottom: 1.75rem;
         }
         
         .staff-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            gap: 1.25rem;
         }
         
         .staff-card {
@@ -125,12 +130,12 @@
             font-weight: bold;
             text-align: center;
             margin-bottom: 0.5rem;
-            color: #2c3e50;
+            color: #12355b;
         }
         
         .staff-position {
             text-align: center;
-            color: #3498db;
+            color: #2a9d8f;
             font-weight: bold;
             margin-bottom: 1rem;
         }
@@ -151,7 +156,7 @@
         }
         
         .email {
-            color: #3498db;
+            color: #2a9d8f;
         }
     </style>
 </head>
@@ -160,10 +165,8 @@
         <div class="nav-container">
             <ul>
                 <li><a href="index.html">Accueil</a></li>
-                <li><a href="index.html#programs">Formations</a></li>
                 <li><a href="responsables.html" class="active">Responsables</a></li>
                 <li><a href="contact.html">Contact</a></li>
-                <li><a href="index.html#inscription">Inscription</a></li>
             </ul>
         </div>
     </nav>
