@@ -156,6 +156,12 @@ initializeDatabase()
     });
   })
   .catch((error) => {
-    console.error("Impossible d'initialiser la base de données :", error.message);
+    const details = [error.code, error.message, error.detail]
+      .filter(Boolean)
+      .join(" - ");
+    console.error(
+      "Impossible d'initialiser la base de données :",
+      details || error
+    );
     process.exitCode = 1;
   });
