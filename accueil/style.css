@@ -244,6 +244,64 @@ nav {
     margin-bottom: 1rem;
 }
 
+.section-intro {
+    max-width: 700px;
+    margin: -1.5rem auto 2rem;
+    text-align: center;
+}
+
+.registration-form {
+    max-width: 850px;
+    margin: auto;
+    padding: 2rem;
+    background-color: var(--accent-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(16, 131, 160, 0.15);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.registration-form label {
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.registration-form input:not([type="checkbox"]),
+.registration-form select,
+.registration-form textarea {
+    display: block;
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.75rem;
+    border: 1px solid #cbd5d7;
+    border-radius: 5px;
+    font: inherit;
+}
+
+.registration-form textarea {
+    resize: vertical;
+}
+
+.form-check {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-check input {
+    width: auto;
+}
+
+.form-status {
+    margin-top: 1rem;
+    font-weight: 600;
+}
+
 footer {
     background-color: var(--text-color);
     color: var(--accent-color);
@@ -270,5 +328,9 @@ footer {
 
     .news-image {
         max-width: 200%;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
     }
 }

@@ -15,12 +15,11 @@
         <nav class="container">
             <!--<img class="logo" src="" alt=""> -->
             <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="index.html">Formation</a></li>
-                <li><a href="index.html">About</a></li>
-                <li><a href="index.html">Responsables</a></li>
-                <li><a href="inscription.html">Inscription</a></li>
-                <li><a href="contact.html">Contact </a></li>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="#programs">Formations</a></li>
+                <li><a href="responsables.html">Responsables</a></li>
+                <li><a href="#inscription">Inscription</a></li>
+                <li><a href="contact.html">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -85,7 +84,7 @@
                     <div class="program-content">
                         <h3>Maternal Section</h3>
                         <p>Your children will be able to learn the basics of education with our teachers.</p>
-                        <a href="inscription.html" class="apply-button">Apply</a>
+                        <a href="#inscription" class="apply-button">S'inscrire</a>
                     </div>
                 </div>
                 <div class="program-card">
@@ -93,7 +92,7 @@
                     <div class="program-content">
                         <h3>Primary Section</h3>
                         <p>Your children will develop strategies for their online and in-person learning and master digital tools to promote businesses.</p>
-                        <a href="inscription.html" class="apply-button">Apply</a>
+                        <a href="#inscription" class="apply-button">S'inscrire</a>
                     </div>
                 </div>
                 <div class="program-card">
@@ -101,22 +100,52 @@
                     <div class="program-content">
                         <h3>Secondary Section</h3>
                         <p>Create intuitive user interfaces and engaging digital experiences that captivate businesses.</p>
-                        <a href="inscription.html" class="apply-button">Apply</a>
+                        <a href="#inscription" class="apply-button">S'inscrire</a>
                     </div>
                 </div>
-                <div class="program-card">
-                    <img src="Capture.PNG" alt="professionnelle">
-                    <div class="program-content">
-                        <h3>Professional Section</h3>
-                        <p>With the LES RAMPARDS school complex, your children will be able to learn and teach society.</p>
-                        <a href="inscription.html" class="apply-button">Apply</a>
-                    </div>
-                    <div class="program-content">
-                        <h3>Professional Section</h3>
-                        <p>With the LES RAMPARDS school complex, your children will be able to learn and teach society.</p>
-                        <a href="inscription.html" class="apply-button">Apply</a>
+        </div>
+    </section>
+    <section id="inscription" class="section inscription-section">
+        <div class="container">
+            <h2 class="section-title">Inscription</h2>
+            <p class="section-intro">Remplissez ce formulaire pour inscrire votre enfant. Notre équipe vous recontactera rapidement.</p>
+            <form id="form-inscription" class="registration-form">
+                <div class="form-row">
+                    <label>Nom<input name="nom" required></label>
+                    <label>Prénom<input name="prenom" required></label>
                 </div>
-            </div>
+                <div class="form-row">
+                    <label>Email<input type="email" name="email" required></label>
+                    <label>Téléphone<input name="telephone" required></label>
+                </div>
+                <div class="form-row">
+                    <label>Adresse<input name="adresse" required></label>
+                    <label>Ville<input name="ville" required></label>
+                </div>
+                <div class="form-row">
+                    <label>Formation
+                        <select name="formation" required>
+                            <option value="">Choisissez une formation</option>
+                            <option value="maternelle">Maternelle</option>
+                            <option value="primaire">Primaire</option>
+                            <option value="secondaire">Secondaire</option>
+                        </select>
+                    </label>
+                    <label>Niveau
+                        <select name="niveau" required>
+                            <option value="">Choisissez votre niveau</option>
+                            <option value="creche">Crèche</option>
+                            <option value="maternelle">Maternelle</option>
+                            <option value="primaire">Primaire</option>
+                            <option value="secondaire">Secondaire</option>
+                        </select>
+                    </label>
+                </div>
+                <label>Message<textarea name="motivation" rows="4"></textarea></label>
+                <label class="form-check"><input type="checkbox" name="conditions" required> J'accepte les conditions d'inscription.</label>
+                <button type="submit" class="cta-button">Envoyer l'inscription</button>
+                <p id="registration-status" class="form-status" role="status"></p>
+            </form>
         </div>
     </section>
     <section id="contact" class="section">
@@ -126,7 +155,7 @@
             <p><strong>Email :</strong> 22bk030@esisalama.org</p>
             <p><strong>Phone :</strong> +243 970804801</p>
             <p><strong>Address :</strong> Democratic Republic of the Congo</p>
-            <a href="" class="cta-button">Request a brochure</a>
+            <a href="#inscription" class="cta-button">S'inscrire</a>
         </div>
     </section>
 
@@ -136,6 +165,29 @@
             <p>Follow us on social media to stay updated on our latest news and events.</p>
         </div>
     </footer>
-    <script src="./accueil.js"></script>
+    <script>
+        const registrationForm = document.getElementById('form-inscription');
+        const registrationStatus = document.getElementById('registration-status');
+
+        registrationForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const data = Object.fromEntries(new FormData(registrationForm));
+            data.newsletter = false;
+            registrationStatus.textContent = 'Envoi en cours...';
+
+            try {
+                const response = await fetch('/api/inscriptions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) throw new Error("Échec de l'inscription");
+                registrationStatus.textContent = 'Inscription envoyée avec succès.';
+                registrationForm.reset();
+            } catch (error) {
+                registrationStatus.textContent = 'Impossible d\'enregistrer l\'inscription. Vérifiez que le serveur est démarré.';
+            }
+        });
+    </script>
 </body>
 </html>
