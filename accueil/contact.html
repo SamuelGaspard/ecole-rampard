@@ -13,7 +13,7 @@
 
         html {
             scroll-behavior: smooth;
-            scroll-padding-top: 70px;
+            scroll-padding-top: 60px;
         }
 
         body {
@@ -21,6 +21,12 @@
             line-height: 1.6;
             color: #263238;
             background-color: #f4f7f6;
+            opacity: 1;
+            transition: opacity 0.28s ease;
+        }
+
+        body.page-exit {
+            opacity: 0;
         }
 
         .container {
@@ -62,14 +68,14 @@
 
         main {
             margin-top: 80px;
-            padding: 24px 0;
+            padding: 18px 0;
         }
 
         .contact-header {
             text-align: center;
-            margin-bottom: 28px;
+            margin-bottom: 18px;
             background: white;
-            padding: 28px;
+            padding: 22px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
@@ -89,12 +95,12 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 40px;
-            margin-bottom: 28px;
+            margin-bottom: 18px;
         }
 
         .contact-form {
             background: white;
-            padding: 40px;
+            padding: 22px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
@@ -157,7 +163,7 @@
 
         .contact-info {
             background: white;
-            padding: 40px;
+            padding: 22px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
@@ -196,7 +202,7 @@
 
         .map-section {
             background: white;
-            padding: 40px;
+            padding: 22px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             text-align: center;
@@ -403,6 +409,15 @@
     </footer>
 
     <script>
+        document.querySelectorAll('a[href$=".html"]').forEach((link) => {
+            link.addEventListener('click', (event) => {
+                if (link.target === '_blank') return;
+                event.preventDefault();
+                document.body.classList.add('page-exit');
+                window.setTimeout(() => { window.location.href = link.href; }, 280);
+            });
+        });
+
         const API_BASE_URL = 'http://localhost:3000';
 
         // Validation du formulaire
