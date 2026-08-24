@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
 const path = require("path");
+const fs = require("fs");
 require("dotenv").config();
 
 const app = express();
@@ -11,13 +12,26 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "accueil")));
 
-const pool = new Pool({
-  host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT || 5432),
-  database: process.env.DB_NAME || "ecole_rampard",
-  user: process.env.DB_USER || "postgres",
-  password: process.env.DB_PASSWORD || "postgres",
+const pool = new Pool(
+  process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL }
+    : {
+        host: process.env.DB_HOST || "localhost",
+        port: Number(process.env.DB_PORT || 5432),
+        database: process.env.DB_NAME || "ecole_rampard",
+        user: process.env.DB_USER || "postgres",
+        password: process.env.DB_PASSWORD || "postgres",
+      }
+);
+
+pool.on("error", (error) => {
+  console.error("Erreur PostgreSQL inattendue :", error.message);
 });
+
+async function initializeDatabase() {
+  const schema = fs.readFileSync(path.join(__dirname, "db", "init.sql"), "utf8");
+  await pool.query(schema);
+}
 
 app.get("/api/health", (req, res) => {
   res.json({ ok: true });
@@ -86,6 +100,7 @@ app.post("/api/inscriptions", async (req, res) => {
 
     return res.status(201).json({ ok: true });
   } catch (error) {
+    console.error("Erreur lors de l'enregistrement de l'inscription :", error.message);
     return res.status(500).json({ ok: false, error: "Erreur serveur" });
   }
 });
@@ -106,6 +121,7 @@ app.post("/api/contact", async (req, res) => {
 
     return res.status(201).json({ ok: true });
   } catch (error) {
+    console.error("Erreur lors de l'enregistrement du message :", error.message);
     return res.status(500).json({ ok: false, error: "Erreur serveur" });
   }
 });
@@ -132,7 +148,14 @@ app.get("/api/messages", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`API en ligne sur http://localhost:${port}`);
-  console.log(`Admin panel: http://localhost:${port}/admin.html`);
-});
+initializeDatabase()
+  .then(() => {
+    app.listen(port, () => {
+      console.log(`API en ligne sur http://localhost:${port}`);
+      console.log(`Admin panel: http://localhost:${port}/admin.html`);
+    });
+  })
+  .catch((error) => {
+    console.error("Impossible d'initialiser la base de données :", error.message);
+    process.exitCode = 1;
+  });
