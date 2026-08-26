@@ -14,5 +14,6 @@ Le serveur initialise automatiquement les tables définies dans `db/init.sql`. S
 - Messagerie parent-direction : `http://localhost:3000/conversation.html`
 - Le parent recherche l'élève avec le nom et le prénom enregistrés dans une inscription.
 - Les messages sont conservés dans PostgreSQL et transmis en temps réel avec Socket.IO.
+- Le mot de passe direction est défini par `DIRECTOR_PASSWORD` dans `.env` (valeur locale par défaut : `rampard-directeur`).
 
 La sélection du rôle « Direction » est prévue pour les tests locaux. Avant une mise en ligne, il faut ajouter une authentification pour réserver le tableau de bord et les réponses de la direction aux personnes autorisées.

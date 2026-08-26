@@ -5,12 +5,15 @@ const http = require("http");
 const { Server } = require("socket.io");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 require("dotenv").config();
 
 const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, { cors: { origin: true } });
 const port = Number(process.env.PORT || 3000);
+const directorPassword = process.env.DIRECTOR_PASSWORD || "rampard-directeur";
+const directorTokens = new Set();
 
 app.use(cors());
 app.use(express.json());
@@ -41,17 +44,35 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true });
 });
 
+function isDirectorAuthenticated(req) {
+  const authorization = req.headers.authorization || "";
+  return authorization.startsWith("Bearer ") && directorTokens.has(authorization.slice(7));
+}
+
+function isSocketDirectorAuthenticated(socket) {
+  return directorTokens.has(socket.handshake.auth?.directorToken);
+}
+
+app.post("/api/director/login", (req, res) => {
+  if (req.body?.password !== directorPassword) {
+    return res.status(401).json({ ok: false, error: "Mot de passe incorrect" });
+  }
+  const token = crypto.randomBytes(32).toString("hex");
+  directorTokens.add(token);
+  return res.json({ ok: true, token });
+});
+
 app.get("/api/eleves", async (req, res) => {
   try {
-    const { nom, prenom } = req.query;
-    if (!nom || !prenom) {
-      return res.status(400).json({ ok: false, error: "Nom et prénom requis" });
+    const { nom } = req.query;
+    if (!nom) {
+      return res.status(400).json({ ok: false, error: "Nom de l'élève requis" });
     }
     const result = await pool.query(
       `SELECT id, nom, prenom FROM inscriptions
-       WHERE LOWER(nom) = LOWER($1) AND LOWER(prenom) = LOWER($2)
+       WHERE LOWER(nom) = LOWER($1)
        LIMIT 1`,
-      [String(nom).trim(), String(prenom).trim()]
+      [String(nom).trim()]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ ok: false, error: "Élève introuvable" });
@@ -65,6 +86,9 @@ app.get("/api/eleves", async (req, res) => {
 
 app.get("/api/conversations/:eleveId/messages", async (req, res) => {
   try {
+    if (!isDirectorAuthenticated(req)) {
+      return res.status(401).json({ ok: false, error: "Connexion direction requise" });
+    }
     const result = await pool.query(
       `SELECT cm.id, cm.sender, cm.message, cm.created_at
        FROM conversation_messages cm
@@ -82,6 +106,9 @@ app.get("/api/conversations/:eleveId/messages", async (req, res) => {
 
 app.get("/api/conversations", async (req, res) => {
   try {
+    if (!isDirectorAuthenticated(req)) {
+      return res.status(401).json({ ok: false, error: "Connexion direction requise" });
+    }
     const result = await pool.query(
       `SELECT c.id, i.id AS eleve_id, i.nom, i.prenom,
               COUNT(cm.id)::int AS message_count, MAX(cm.created_at) AS last_message
@@ -94,6 +121,31 @@ app.get("/api/conversations", async (req, res) => {
     return res.json({ ok: true, conversations: result.rows });
   } catch (error) {
     console.error("Erreur lors du chargement des conversations :", error.message);
+    return res.status(500).json({ ok: false, error: "Erreur serveur" });
+  }
+});
+
+app.get("/api/analytics", async (req, res) => {
+  try {
+    if (!isDirectorAuthenticated(req)) {
+      return res.status(401).json({ ok: false, error: "Connexion direction requise" });
+    }
+    const [inscriptions, contacts, conversations] = await Promise.all([
+      pool.query(`SELECT created_at::date AS day, COUNT(*)::int AS total
+                  FROM inscriptions GROUP BY day ORDER BY day`),
+      pool.query(`SELECT created_at::date AS day, COUNT(*)::int AS total
+                  FROM messages_contact GROUP BY day ORDER BY day`),
+      pool.query(`SELECT created_at::date AS day, COUNT(*)::int AS total
+                  FROM conversation_messages GROUP BY day ORDER BY day`),
+    ]);
+    return res.json({
+      ok: true,
+      inscriptions: inscriptions.rows,
+      contacts: contacts.rows,
+      conversations: conversations.rows,
+    });
+  } catch (error) {
+    console.error("Erreur lors du chargement des statistiques :", error.message);
     return res.status(500).json({ ok: false, error: "Erreur serveur" });
   }
 });
@@ -114,15 +166,32 @@ async function saveMessage(eleveId, sender, message) {
 }
 
 io.on("connection", (socket) => {
+  if (isSocketDirectorAuthenticated(socket)) {
+    socket.join("directors");
+  }
+
   socket.on("conversation:join", (eleveId) => {
-    socket.join(`eleve:${eleveId}`);
+    const room = isSocketDirectorAuthenticated(socket)
+      ? `eleve:${eleveId}`
+      : `parent:${eleveId}`;
+    socket.join(room);
   });
 
-  socket.on("conversation:message", async ({ eleveId, sender, message }) => {
+  socket.on("conversation:message", async ({ eleveId, message }) => {
     try {
-      if (!eleveId || !["parent", "direction"].includes(sender) || !message?.trim()) return;
+      if (!eleveId || !message?.trim()) return;
+      const sender = isSocketDirectorAuthenticated(socket) ? "direction" : "parent";
       const saved = await saveMessage(eleveId, sender, message);
-      io.to(`eleve:${eleveId}`).emit("conversation:message", saved.message);
+      if (sender === "direction") {
+        io.to(`parent:${eleveId}`).emit("conversation:message", saved.message);
+        socket.emit("conversation:message", saved.message);
+      } else {
+        socket.emit("conversation:message", saved.message);
+        io.to("directors").emit("conversation:message", {
+          ...saved.message,
+          eleveId,
+        });
+      }
     } catch (error) {
       socket.emit("conversation:error", "Message non enregistré");
       console.error("Erreur lors de l'enregistrement du message privé :", error.message);
@@ -221,6 +290,9 @@ app.post("/api/contact", async (req, res) => {
 
 app.get("/api/inscriptions", async (req, res) => {
   try {
+    if (!isDirectorAuthenticated(req)) {
+      return res.status(401).json({ ok: false, error: "Connexion direction requise" });
+    }
     const result = await pool.query(
       "SELECT * FROM inscriptions ORDER BY created_at DESC"
     );
@@ -232,6 +304,9 @@ app.get("/api/inscriptions", async (req, res) => {
 
 app.get("/api/messages", async (req, res) => {
   try {
+    if (!isDirectorAuthenticated(req)) {
+      return res.status(401).json({ ok: false, error: "Connexion direction requise" });
+    }
     const result = await pool.query(
       "SELECT * FROM messages_contact ORDER BY created_at DESC"
     );

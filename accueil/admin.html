@@ -43,8 +43,9 @@
         }
 
         .tab-button {
-            padding: 12px 24px;
-            background: #3498db;
+            min-height: 44px;
+            padding: 11px 18px;
+            background: #12355b;
             color: white;
             border: none;
             border-radius: 5px;
@@ -54,11 +55,11 @@
         }
 
         .tab-button:hover {
-            background: #2980b9;
+            background: #2a9d8f;
         }
 
         .tab-button.active {
-            background: #27ae60;
+            background: #2a9d8f;
         }
 
         .tab-content {
@@ -154,8 +155,9 @@
         }
 
         .btn-refresh {
-            padding: 10px 20px;
-            background: #3498db;
+            min-height: 44px;
+            padding: 11px 18px;
+            background: #12355b;
             color: white;
             border: none;
             border-radius: 5px;
@@ -165,7 +167,7 @@
         }
 
         .btn-refresh:hover {
-            background: #2980b9;
+            background: #2a9d8f;
         }
 
         .email {
@@ -212,19 +214,34 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="site-ui.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
             <h1> dashbord Admin - École LES RAMPARDS</h1>
             <p>Gestion des inscriptions et messages de contact</p>
+            <form id="director-login" style="display:flex;justify-content:center;gap:10px;margin-top:15px;">
+                <input id="director-password" type="password" placeholder="Mot de passe direction" required>
+                <button type="submit" class="tab-button">Connexion direction</button>
+            </form>
         </header>
 
         <div class="tabs">
-            <button class="tab-button active" onclick="showTab('inscriptions')">Inscriptions</button>
-            <button class="tab-button" onclick="showTab('contacts')">Messages de Contact</button>
-            <button class="tab-button" onclick="showTab('conversations')">Conversations</button>
+            <button class="tab-button" onclick="showTab('analytics', this)">Statistiques</button>
+            <button class="tab-button active" onclick="showTab('inscriptions', this)">Inscriptions</button>
+            <button class="tab-button" onclick="showTab('contacts', this)">Messages de Contact</button>
+            <button class="tab-button" onclick="showTab('conversations', this)">Conversations</button>
         </div>
+
+        <section id="analytics" class="tab-content">
+            <div class="stat-cards">
+                <div class="stat-card"><h3>Évolution des inscriptions</h3><canvas id="inscriptions-chart"></canvas></div>
+                <div class="stat-card"><h3>Évolution des contacts</h3><canvas id="contacts-chart"></canvas></div>
+                <div class="stat-card"><h3>Évolution des conversations</h3><canvas id="conversations-chart"></canvas></div>
+            </div>
+        </section>
 
         <div id="conversations" class="tab-content">
             <div class="stat-cards">
@@ -312,17 +329,43 @@
     <script>
         const API_BASE_URL = 'http://localhost:3000';
 
-        function showTab(tabName) {
+        function showTab(tabName, button) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-button').forEach(el => el.classList.remove('active'));
             
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            if (button) button.classList.add('active');
 
             if (tabName === 'inscriptions') loadInscriptions();
             if (tabName === 'contacts') loadContacts();
             if (tabName === 'conversations') loadConversations();
+            if (tabName === 'analytics') loadAnalytics();
         }
+
+        let directorToken = null;
+
+        document.getElementById('director-login').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const response = await fetch(`${API_BASE_URL}/api/director/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: document.getElementById('director-password').value })
+            });
+            const result = await response.json();
+            const error = document.getElementById('conversations-error');
+            if (!response.ok) {
+                error.textContent = result.error || 'Connexion refusée';
+                error.style.display = 'block';
+                return;
+            }
+            directorToken = result.token;
+            document.getElementById('director-password').value = '';
+            error.style.display = 'none';
+            loadInscriptions();
+            loadContacts();
+            loadConversations();
+            loadAnalytics();
+        });
 
         async function loadInscriptions() {
             const loading = document.getElementById('inscriptions-loading');
@@ -336,7 +379,9 @@
             body.innerHTML = '';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/inscriptions`);
+                    const response = await fetch(`${API_BASE_URL}/api/inscriptions`, {
+                        headers: { Authorization: `Bearer ${directorToken}` }
+                    });
                 if (!response.ok) throw new Error('Erreur API');
 
                 const data = await response.json();
@@ -386,7 +431,9 @@
             body.innerHTML = '';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/messages`);
+                const response = await fetch(`${API_BASE_URL}/api/messages`, {
+                    headers: { Authorization: `Bearer ${directorToken}` }
+                });
                 if (!response.ok) throw new Error('Erreur API');
 
                 const data = await response.json();
@@ -429,7 +476,9 @@
             table.style.display = 'none';
             body.innerHTML = '';
             try {
-                const response = await fetch(`${API_BASE_URL}/api/conversations`);
+                const response = await fetch(`${API_BASE_URL}/api/conversations`, {
+                    headers: directorToken ? { Authorization: `Bearer ${directorToken}` } : {}
+                });
                 if (!response.ok) throw new Error('Erreur API');
                 const result = await response.json();
                 document.getElementById('total-conversations').textContent = result.conversations.length;
@@ -452,8 +501,29 @@
             }
         }
 
+        let charts = [];
+        async function loadAnalytics() {
+            const response = await fetch(`${API_BASE_URL}/api/analytics`, {
+                headers: { Authorization: `Bearer ${directorToken}` }
+            });
+            if (!response.ok) return;
+            const data = await response.json();
+            const series = [data.inscriptions, data.contacts, data.conversations];
+            const ids = ['inscriptions-chart', 'contacts-chart', 'conversations-chart'];
+            const colors = ['#12355b', '#2a9d8f', '#e76f51'];
+            charts.forEach((chart) => chart.destroy());
+            charts = series.map((items, index) => new Chart(document.getElementById(ids[index]), {
+                type: 'line',
+                data: {
+                    labels: items.map((item) => new Date(item.day).toLocaleDateString('fr-FR')),
+                    datasets: [{ data: items.map((item) => item.total), borderColor: colors[index], backgroundColor: colors[index], tension: 0.25, fill: false }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+            }));
+        }
+
         // Charge les données au démarrage
-        window.addEventListener('load', loadInscriptions);
+        window.addEventListener('load', () => showTab('analytics'));
     </script>
 </body>
 </html>

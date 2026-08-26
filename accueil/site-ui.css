@@ -1,0 +1,45 @@
+button,
+.cta-button,
+.apply-button,
+.btn,
+.btn-refresh,
+.tab-button {
+    min-height: 44px;
+    padding: 11px 18px;
+    border: 0;
+    border-radius: 5px;
+    background: #12355b;
+    color: #ffffff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+button:hover,
+.cta-button:hover,
+.apply-button:hover,
+.btn:hover,
+.btn-refresh:hover,
+.tab-button:hover {
+    background: #2a9d8f;
+    transform: translateY(-1px);
+}
+
+.page-heading {
+    margin-bottom: 20px;
+    color: #12355b;
+    text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+    }
+}

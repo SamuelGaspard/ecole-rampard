@@ -14,15 +14,18 @@
         nav strong, nav a { color: white; text-decoration: none; }
         nav ul { display: flex; gap: 18px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
         main { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
-        h1 { color: var(--navy); margin: 0 0 8px; }
+        h1, h2 { color: var(--navy); text-align: center; margin: 0 0 8px; }
         .intro { margin: 0 0 20px; }
         .panel { background: white; padding: 22px; border-radius: 10px; box-shadow: 0 4px 14px rgba(18, 53, 91, .12); }
-        .search { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; }
+        .search { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
         label { display: grid; gap: 6px; font-weight: bold; }
         input, select { width: 100%; padding: 11px; border: 1px solid #cbd5d7; border-radius: 5px; font: inherit; }
-        button { padding: 11px 16px; border: 0; border-radius: 5px; background: var(--teal); color: white; font-weight: bold; cursor: pointer; }
+        button { min-height: 44px; padding: 11px 18px; border: 0; border-radius: 5px; background: var(--navy); color: white; font: inherit; font-weight: bold; cursor: pointer; transition: background-color .2s ease, transform .2s ease; }
         button:hover { background: #238276; }
-        .role { max-width: 230px; margin-bottom: 16px; }
+        .role { max-width: 300px; margin: 0 auto 16px; }
+        .director-login { display: grid; grid-template-columns: 1fr auto; gap: 10px; max-width: 500px; margin: 0 auto 18px; }
+        .director-login label { align-content: end; }
+        .director-login button { background: var(--teal); }
         .status { min-height: 24px; margin: 14px 0 0; font-weight: bold; }
         .chat { display: none; margin-top: 18px; }
         .student { color: var(--navy); margin: 0 0 12px; }
@@ -33,6 +36,7 @@
         .composer { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 12px; }
         @media (max-width: 650px) { .search, .composer { grid-template-columns: 1fr; } nav { align-items: flex-start; flex-direction: column; } }
     </style>
+    <link rel="stylesheet" href="site-ui.css">
 </head>
 <body>
     <header>
@@ -47,17 +51,16 @@
     </header>
     <main>
         <h1>Conversation avec l'école</h1>
-        <p class="intro">Recherchez l'élève avec son nom et son prénom pour ouvrir sa conversation.</p>
+        <p class="intro">Le parent recherche son enfant avec son nom, puis envoie son message.</p>
         <section class="panel">
-            <label class="role">Vous êtes
-                <select id="role">
-                    <option value="parent">Parent</option>
-                    <option value="direction">Direction</option>
-                </select>
-            </label>
+            <form id="director-login" class="director-login">
+                <label>Connexion direction
+                    <input id="director-password" type="password" placeholder="Mot de passe" required>
+                </label>
+                <button type="submit">Se connecter</button>
+            </form>
             <form id="student-search" class="search">
-                <label>Nom<input id="last-name" required autocomplete="family-name"></label>
-                <label>Prénom<input id="first-name" required autocomplete="given-name"></label>
+                <label>Nom de l'enfant<input id="last-name" required autocomplete="family-name"></label>
                 <button type="submit">Rechercher</button>
             </form>
             <p id="status" class="status" role="status"></p>
@@ -80,6 +83,29 @@
         const messages = document.getElementById('messages');
         const studentName = document.getElementById('student-name');
         let studentId = null;
+        let directorToken = null;
+
+        document.getElementById('director-login').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const password = document.getElementById('director-password').value;
+            try {
+                const response = await fetch('/api/director/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Connexion refusée');
+                directorToken = result.token;
+                socket.auth = { directorToken };
+                socket.disconnect().connect();
+                if (studentId) socket.emit('conversation:join', studentId);
+                status.textContent = 'Connexion direction réussie.';
+                document.getElementById('director-password').value = '';
+            } catch (error) {
+                status.textContent = error.message;
+            }
+        });
 
         function showMessage(item) {
             const element = document.createElement('div');
@@ -96,10 +122,7 @@
             event.preventDefault();
             status.textContent = 'Recherche en cours...';
             chat.style.display = 'none';
-            const params = new URLSearchParams({
-                nom: document.getElementById('last-name').value.trim(),
-                prenom: document.getElementById('first-name').value.trim()
-            });
+            const params = new URLSearchParams({ nom: document.getElementById('last-name').value.trim() });
             try {
                 const response = await fetch(`/api/eleves?${params}`);
                 const result = await response.json();
@@ -107,10 +130,16 @@
                 studentId = result.eleve.id;
                 studentName.textContent = `Conversation : ${result.eleve.prenom} ${result.eleve.nom}`;
                 messages.innerHTML = '';
-                const history = await fetch(`/api/conversations/${studentId}/messages`);
-                const historyResult = await history.json();
-                historyResult.messages.forEach(showMessage);
-                socket.emit('conversation:join', studentId);
+                if (directorToken) {
+                    const history = await fetch(`/api/conversations/${studentId}/messages`, {
+                        headers: { Authorization: `Bearer ${directorToken}` }
+                    });
+                    const historyResult = await history.json();
+                    historyResult.messages.forEach(showMessage);
+                    socket.emit('conversation:join', studentId);
+                } else {
+                    socket.emit('conversation:join', studentId);
+                }
                 chat.style.display = 'block';
                 status.textContent = '';
             } catch (error) {
@@ -124,7 +153,7 @@
             if (!studentId || !input.value.trim()) return;
             socket.emit('conversation:message', {
                 eleveId: studentId,
-                sender: document.getElementById('role').value,
+                sender: directorToken ? 'direction' : 'parent',
                 message: input.value
             });
             input.value = '';
