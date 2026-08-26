@@ -223,6 +223,23 @@
         <div class="tabs">
             <button class="tab-button active" onclick="showTab('inscriptions')">Inscriptions</button>
             <button class="tab-button" onclick="showTab('contacts')">Messages de Contact</button>
+            <button class="tab-button" onclick="showTab('conversations')">Conversations</button>
+        </div>
+
+        <div id="conversations" class="tab-content">
+            <div class="stat-cards">
+                <div class="stat-card">
+                    <h3>Conversations</h3>
+                    <div class="number" id="total-conversations">-</div>
+                </div>
+            </div>
+            <button class="btn-refresh" onclick="loadConversations()">🔄 Actualiser</button>
+            <div id="conversations-error" class="error" style="display:none;"></div>
+            <div id="conversations-loading" class="loading">Chargement des conversations...</div>
+            <table id="conversations-table" style="display:none;">
+                <thead><tr><th>Élève</th><th>Messages</th><th>Dernier message</th></tr></thead>
+                <tbody id="conversations-body"></tbody>
+            </table>
         </div>
 
         <!-- Onglet Inscriptions -->
@@ -304,6 +321,7 @@
 
             if (tabName === 'inscriptions') loadInscriptions();
             if (tabName === 'contacts') loadContacts();
+            if (tabName === 'conversations') loadConversations();
         }
 
         async function loadInscriptions() {
@@ -391,6 +409,39 @@
                     });
 
                     document.getElementById('total-contacts').textContent = data.length;
+                    table.style.display = 'table';
+                }
+            } catch (err) {
+                error.textContent = `Erreur: ${err.message}`;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        async function loadConversations() {
+            const loading = document.getElementById('conversations-loading');
+            const error = document.getElementById('conversations-error');
+            const table = document.getElementById('conversations-table');
+            const body = document.getElementById('conversations-body');
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            table.style.display = 'none';
+            body.innerHTML = '';
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/conversations`);
+                if (!response.ok) throw new Error('Erreur API');
+                const result = await response.json();
+                document.getElementById('total-conversations').textContent = result.conversations.length;
+                result.conversations.forEach((item) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${item.prenom} ${item.nom}</td><td>${item.message_count}</td><td>${item.last_message ? new Date(item.last_message).toLocaleString('fr-FR') : '-'}</td>`;
+                    body.appendChild(row);
+                });
+                if (result.conversations.length === 0) {
+                    error.textContent = 'Aucune conversation pour le moment.';
+                    error.style.display = 'block';
+                } else {
                     table.style.display = 'table';
                 }
             } catch (err) {

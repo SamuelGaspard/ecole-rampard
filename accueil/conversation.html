@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversation - École LES RAMPARDS</title>
+    <style>
+        :root { --navy: #12355b; --teal: #2a9d8f; --ink: #263238; --paper: #f4f7f6; }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { margin: 0; font-family: Arial, sans-serif; color: var(--ink); background: var(--paper); }
+        header { background: var(--navy); padding: 16px 20px; }
+        nav { max-width: 1100px; margin: auto; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+        nav strong, nav a { color: white; text-decoration: none; }
+        nav ul { display: flex; gap: 18px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+        main { max-width: 900px; margin: 0 auto; padding: 28px 20px; }
+        h1 { color: var(--navy); margin: 0 0 8px; }
+        .intro { margin: 0 0 20px; }
+        .panel { background: white; padding: 22px; border-radius: 10px; box-shadow: 0 4px 14px rgba(18, 53, 91, .12); }
+        .search { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: end; }
+        label { display: grid; gap: 6px; font-weight: bold; }
+        input, select { width: 100%; padding: 11px; border: 1px solid #cbd5d7; border-radius: 5px; font: inherit; }
+        button { padding: 11px 16px; border: 0; border-radius: 5px; background: var(--teal); color: white; font-weight: bold; cursor: pointer; }
+        button:hover { background: #238276; }
+        .role { max-width: 230px; margin-bottom: 16px; }
+        .status { min-height: 24px; margin: 14px 0 0; font-weight: bold; }
+        .chat { display: none; margin-top: 18px; }
+        .student { color: var(--navy); margin: 0 0 12px; }
+        .messages { height: 320px; overflow-y: auto; border: 1px solid #dce5e3; border-radius: 7px; padding: 14px; background: #f8fbfa; }
+        .message { max-width: 78%; margin: 0 0 10px; padding: 9px 12px; border-radius: 10px; background: #e4eeec; }
+        .message.parent { margin-left: auto; background: #d8e6f3; }
+        .message small { display: block; margin-top: 4px; opacity: .65; font-size: 11px; }
+        .composer { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-top: 12px; }
+        @media (max-width: 650px) { .search, .composer { grid-template-columns: 1fr; } nav { align-items: flex-start; flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <strong>École LES RAMPARDS</strong>
+            <ul>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="responsables.html">Responsables</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>Conversation avec l'école</h1>
+        <p class="intro">Recherchez l'élève avec son nom et son prénom pour ouvrir sa conversation.</p>
+        <section class="panel">
+            <label class="role">Vous êtes
+                <select id="role">
+                    <option value="parent">Parent</option>
+                    <option value="direction">Direction</option>
+                </select>
+            </label>
+            <form id="student-search" class="search">
+                <label>Nom<input id="last-name" required autocomplete="family-name"></label>
+                <label>Prénom<input id="first-name" required autocomplete="given-name"></label>
+                <button type="submit">Rechercher</button>
+            </form>
+            <p id="status" class="status" role="status"></p>
+            <div id="chat" class="chat">
+                <h2 id="student-name" class="student"></h2>
+                <div id="messages" class="messages" aria-live="polite"></div>
+                <form id="message-form" class="composer">
+                    <input id="message-input" placeholder="Écrivez votre message..." maxlength="2000" required>
+                    <button type="submit">Envoyer</button>
+                </form>
+            </div>
+        </section>
+    </main>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const searchForm = document.getElementById('student-search');
+        const status = document.getElementById('status');
+        const chat = document.getElementById('chat');
+        const messages = document.getElementById('messages');
+        const studentName = document.getElementById('student-name');
+        let studentId = null;
+
+        function showMessage(item) {
+            const element = document.createElement('div');
+            element.className = `message ${item.sender}`;
+            element.textContent = item.message;
+            const time = document.createElement('small');
+            time.textContent = new Date(item.created_at).toLocaleString('fr-FR');
+            element.appendChild(time);
+            messages.appendChild(element);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        searchForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            status.textContent = 'Recherche en cours...';
+            chat.style.display = 'none';
+            const params = new URLSearchParams({
+                nom: document.getElementById('last-name').value.trim(),
+                prenom: document.getElementById('first-name').value.trim()
+            });
+            try {
+                const response = await fetch(`/api/eleves?${params}`);
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Élève introuvable');
+                studentId = result.eleve.id;
+                studentName.textContent = `Conversation : ${result.eleve.prenom} ${result.eleve.nom}`;
+                messages.innerHTML = '';
+                const history = await fetch(`/api/conversations/${studentId}/messages`);
+                const historyResult = await history.json();
+                historyResult.messages.forEach(showMessage);
+                socket.emit('conversation:join', studentId);
+                chat.style.display = 'block';
+                status.textContent = '';
+            } catch (error) {
+                status.textContent = error.message;
+            }
+        });
+
+        document.getElementById('message-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const input = document.getElementById('message-input');
+            if (!studentId || !input.value.trim()) return;
+            socket.emit('conversation:message', {
+                eleveId: studentId,
+                sender: document.getElementById('role').value,
+                message: input.value
+            });
+            input.value = '';
+        });
+
+        socket.on('conversation:message', showMessage);
+        socket.on('conversation:error', (message) => { status.textContent = message; });
+    </script>
+</body>
+</html>
