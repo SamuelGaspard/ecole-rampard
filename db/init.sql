@@ -26,3 +26,18 @@ CREATE TABLE IF NOT EXISTS messages_contact (
   message TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS conversations (
+  id SERIAL PRIMARY KEY,
+  inscription_id INTEGER NOT NULL REFERENCES inscriptions(id) ON DELETE CASCADE,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE (inscription_id)
+);
+
+CREATE TABLE IF NOT EXISTS conversation_messages (
+  id SERIAL PRIMARY KEY,
+  conversation_id INTEGER NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  sender VARCHAR(20) NOT NULL CHECK (sender IN ('parent', 'direction')),
+  message TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
